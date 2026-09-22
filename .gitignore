@@ -15,4 +15,6 @@ pom.xml.asc
 .cpcache/
 
 // vscode
-.vscode/settings.json
+.clj-kondo/
+.lsp/
+.vscode/
