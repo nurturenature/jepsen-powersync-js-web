@@ -29,4 +29,4 @@ This repository is a follow on to try a different approach:
   - does not use the "screen" (DOM)
   - but instead spawns a `WebWorker`
   - which opens a `WebSocket` back to the Jepsen control node
-  - and implements Jepsen `client` interface
+  - and implements Jepsen's `client` interface
