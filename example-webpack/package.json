@@ -1,0 +1,21 @@
+{
+  "name": "example-webpack",
+  "private": true,
+  "version": null,
+  "scripts": {
+    "build": "webpack",
+    "serve": "serve ./dist",
+    "start": "pnpm build && pnpm serve",
+    "test:build": "pnpm build"
+  },
+  "dependencies": {
+    "@powersync/web": "^2.3.1"
+  },
+  "devDependencies": {
+    "@types/webpack": "^5.28.5",
+    "html-webpack-plugin": "^5.6.0",
+    "serve": "^14.2.1",
+    "webpack": "^5.90.1",
+    "webpack-cli": "^5.1.4"
+  }
+}
