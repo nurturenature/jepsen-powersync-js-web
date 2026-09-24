@@ -1,6 +1,8 @@
 # jepsen-powersync-js-web
 
-## Experimental Repository Only - This is *Not* a Real Jepsen Test (yet :)
+## Experimental Repository
+
+## This an Exploration of Using Jepsen to Test a Web App in a Browser
 
 ### Testing [PowerSync's SDK for JavaScript Web clients](https://github.com/powersync-ja/powersync-js/tree/main/packages/web) with [Jepsen](https://github.com/jepsen-io/jepsen) for [Causal Consistency](https://jepsen.io/consistency/models/causal), [Atomic transactions](https://jepsen.io/consistency/models/monotonic-atomic-view), and Strong Convergence
 

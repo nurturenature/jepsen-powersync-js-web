@@ -1,5 +1,38 @@
 (ns ps-web.client
-  (:require [jepsen.client :as client]))
+  "A PowerSync web client is a WebSocket Channel back to a WebSocket Server
+   running under the Jepsen control node."
+  (:require [clojure.tools.logging.readable :refer [info]]
+            [jepsen.client :as client]
+            [org.httpkit.server :as hk-server]))
+
+(def websocket-port 8090)
+
+(def channels (atom #{}))
+
+(defn on-open
+  [ch]
+  (info "on-open: ch:" ch)
+  (swap! channels conj ch))
+
+(defn on-receive
+  [ch message]
+  (info "on-receive: ch:" ch ", message:" message)
+  (doseq [ch @channels]
+    (hk-server/send! ch (str "Broadcasting: " message))))
+
+(defn on-close
+  [ch status-code]
+  (info "on-close: ch:" ch ", status-code:" status-code)
+  (swap! channels disj ch))
+
+(defn websocket-handler [ring-req]
+  (assert (:websocket? ring-req))
+  (hk-server/as-channel ring-req
+                        {:on-open    on-open
+                         :on-receive on-receive
+                         :on-close   on-close}))
+
+(def websocket-server (hk-server/run-server websocket-handler {:port websocket-port}))
 
 (defrecord PSBrowserClient [conn]
   client/Client

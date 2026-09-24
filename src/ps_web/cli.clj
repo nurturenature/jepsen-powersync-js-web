@@ -1,9 +1,6 @@
 (ns ps-web.cli
   "Command-line entry point for PowerSync web app tests."
-  (:require [causal.checker.mww
-             [stats :as stats]
-             [util :as util]]
-            [clojure.string :as str]
+  (:require [clojure.string :as str]
             [jepsen
              [checker :as checker]
              [cli :as cli]
@@ -79,7 +76,7 @@
                                               {:nemeses (:perf nemesis)})
                          :timeline           (timeline/html)
                          :stats              (checker/stats)
-                         :completions-by-node (stats/completions-by-node)
+                         ;; TODO: enable :completions-by-node (stats/completions-by-node)
                          :exceptions         (checker/unhandled-exceptions)
                          :logs-ps-client     (checker/log-file-pattern #"(SEVERE)|(ERROR)" "TODO")
                          :workload           (:checker workload)})
@@ -103,11 +100,6 @@
   "Command line options"
   [[nil "--client-timeout SECS" "The number of seconds to wait before timing out a client connection."
     :default  3
-    :parse-fn parse-long
-    :validate [pos? "Must be a positive integer"]]
-
-   [nil "--key-count NUM" "The total number of keys."
-    :default  util/key-count
     :parse-fn parse-long
     :validate [pos? "Must be a positive integer"]]
 
