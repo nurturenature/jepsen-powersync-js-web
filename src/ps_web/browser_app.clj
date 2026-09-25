@@ -119,7 +119,7 @@
 
   db/Kill
   (start!
-    [_this _test _node]
+    [_this {:keys [jepsen-control-node] :as _test} node]
     ; webapp, i.e. npm
     (cu/start-daemon!
      {:chdir   webapp-dir
@@ -128,17 +128,18 @@
      webapp-bin :run :serve)
 
     ; browser, i.e. chromium
-    (cu/start-daemon!
-     {:chdir   install-dir
-      :logfile browser-log-file
-      :pidfile browser-pid-file}
-     browser-bin
-     :--allow-insecure-localhost ; TODO: add cert to host's trusted certs
-     :--no-sandbox               ; TODO: create a non-root user to run browser? --headless and user root require --no-sandbox
-     :--headless
-     :--enable-logging=stderr
+    (let [webapp-url (str webapp-url "?" "myHostname" "=" node "&" "jepsenControlNode" "=" jepsen-control-node)]
+      (cu/start-daemon!
+       {:chdir   install-dir
+        :logfile browser-log-file
+        :pidfile browser-pid-file}
+       browser-bin
+       :--allow-insecure-localhost ; TODO: add cert to host's trusted certs
+       :--no-sandbox               ; TODO: create a non-root user to run browser? --headless and user root require --no-sandbox
+       :--headless
+       :--enable-logging=stderr
      ; :--log-level=2 TODO what is appropriate log level? getting console logs?
-     webapp-url))
+       webapp-url)))
 
   (kill!
     [_this _test _node]

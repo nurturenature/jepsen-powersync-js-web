@@ -1,7 +1,8 @@
 (ns ps-web.client
   "A PowerSync web client is a WebSocket Channel back to a WebSocket Server
    running under the Jepsen control node."
-  (:require [clojure.tools.logging.readable :refer [info]]
+  (:require [cheshire.core :as json]
+            [clojure.tools.logging.readable :refer [info]]
             [jepsen.client :as client]
             [org.httpkit.server :as hk-server]))
 
@@ -16,9 +17,8 @@
 
 (defn on-receive
   [ch message]
-  (info "on-receive: ch:" ch ", message:" message)
-  (doseq [ch @channels]
-    (hk-server/send! ch (str "Broadcasting: " message))))
+  (let [message (json/parse-string message true)]
+    (info "on-receive: ch:" ch ", message:" message)))
 
 (defn on-close
   [ch status-code]

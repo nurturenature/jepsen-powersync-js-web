@@ -103,6 +103,11 @@
     :parse-fn parse-long
     :validate [pos? "Must be a positive integer"]]
 
+   [nil "--jepsen-control-node HOSTNAME" "Hostname of the Jepsen control node."
+    :default  "control"
+    :parse-fn str
+    :validate [(fn [hostname] (not (str/blank? hostname))) "Must be a non-blank string."]]
+
    [nil "--keys-txn NUM" "The number of keys to act on in a transactions."
     :default  4
     :parse-fn parse-long

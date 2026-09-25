@@ -5,6 +5,7 @@
             :url "http://www.apache.org/licenses/"}
   :dependencies [[org.clojure/clojure "1.12.6"]
                  [jepsen "0.3.14"]
+                 [cheshire "6.2.0"]
                  [http-kit "2.8.1"]]
   :jvm-opts ["-Xmx8g"
              "-Djava.awt.headless=true"

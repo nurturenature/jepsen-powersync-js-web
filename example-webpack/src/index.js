@@ -1,5 +1,37 @@
 import { Schema, Table, PowerSyncDatabase, column, createConsoleLogger, LogLevels } from '@powersync/web';
 
+//
+// open a WebSocket back to the Jepsen control node
+//
+
+// webapp was started with URL params ?myHostname=...&jepsenControlNode=...
+const urlSearchParams = new URLSearchParams(document.location.search);
+const myHostname = urlSearchParams.get("myHostname");
+const jepsenControlNode = urlSearchParams.get("jepsenControlNode");
+
+// websocket and handlers
+const jepsenWebsocket = new WebSocket("ws://" + jepsenControlNode + ":8090");
+jepsenWebsocket.addEventListener("open", () => {
+  console.log(`${myHostname}: open: connected to ${jepsenControlNode}`);
+});
+jepsenWebsocket.addEventListener("message", (e) => {
+  console.log(`${myHostname}: message: ${JSON.parse(e)}`);
+});
+jepsenWebsocket.addEventListener("close", () => {
+  console.log(`${myHostname}: close: disconnected from ${jepsenControlNode}`);
+});
+jepsenWebsocket.addEventListener("error", (e) => {
+  console.error(`${myHostname}: error: ${e}`);
+  throw new Error(`${e}`);
+});
+
+// "register" with the Jepsen control node
+jepsenWebsocket.send(JSON.stringify({ "type": "invoke", "f": "register", "value": myHostname }));
+
+//
+// PowerSync
+//
+
 const logger = createConsoleLogger({ minLevel: LogLevels.debug });
 
 /**
@@ -15,7 +47,7 @@ class DummyConnector {
     };
   }
 
-  async uploadData(database) {}
+  async uploadData(database) { }
 }
 
 const customers = new Table({ name: column.text });
