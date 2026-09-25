@@ -133,7 +133,8 @@
       :logfile browser-log-file
       :pidfile browser-pid-file}
      browser-bin
-     :--no-sandbox  ; TODO: create a non-root user to run browser? --headless and user root require --no-sandbox
+     :--allow-insecure-localhost ; TODO: add cert to host's trusted certs
+     :--no-sandbox               ; TODO: create a non-root user to run browser? --headless and user root require --no-sandbox
      :--headless
      :--enable-logging=stderr
      ; :--log-level=2 TODO what is appropriate log level? getting console logs?
