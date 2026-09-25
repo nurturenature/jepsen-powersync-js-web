@@ -123,7 +123,7 @@
      webapp-bin :run :serve)
 
     ; browser, i.e. chromium
-    (let [webapp-url (str "https://" node ":443/index.html?myHostname=" node "&jepsenControlNode=" jepsen-control-node)]
+    (let [webapp-url (str "https://" node "/?myHostname=" node "&jepsenControlNode=" jepsen-control-node)]
       (cu/start-daemon!
        {:chdir   install-dir
         :logfile browser-log-file
