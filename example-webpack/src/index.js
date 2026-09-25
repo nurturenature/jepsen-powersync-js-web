@@ -14,6 +14,8 @@ console.log(`creating WebSocket using urlSearchParams: myHostname: ${myHostname}
 let jepsenWebsocket;
 try {
   jepsenWebsocket = new WebSocket("wss://" + jepsenControlNode + ":8090");
+  console.log(`created WebSocket: jepsenWebsocket: ${jepsenWebsocket}`);
+
   jepsenWebsocket.addEventListener("open", () => {
     console.log(`${myHostname}: open: connected to ${jepsenControlNode}`);
   });
@@ -32,7 +34,7 @@ try {
   jepsenWebsocket.send(JSON.stringify({ "type": "invoke", "f": "register", "value": myHostname }));
 } catch (e) {
   console.error(`${myHostname}: error creating WebSocket: ${e}`);
-  throw new Error(`${e}`);
+  throw e;
 }
 
 //
