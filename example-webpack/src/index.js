@@ -12,7 +12,7 @@ const jepsenControlNode = urlSearchParams.get("jepsenControlNode");
 // websocket and handlers
 let jepsenWebsocket;
 try {
-  jepsenWebsocket = new WebSocket("ws://" + jepsenControlNode + ":8090");
+  jepsenWebsocket = new WebSocket("wss://" + jepsenControlNode + ":8090");
   jepsenWebsocket.addEventListener("open", () => {
     console.log(`${myHostname}: open: connected to ${jepsenControlNode}`);
   });
