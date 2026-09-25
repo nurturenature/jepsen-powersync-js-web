@@ -10,23 +10,29 @@ const myHostname = urlSearchParams.get("myHostname");
 const jepsenControlNode = urlSearchParams.get("jepsenControlNode");
 
 // websocket and handlers
-const jepsenWebsocket = new WebSocket("ws://" + jepsenControlNode + ":8090");
-jepsenWebsocket.addEventListener("open", () => {
-  console.log(`${myHostname}: open: connected to ${jepsenControlNode}`);
-});
-jepsenWebsocket.addEventListener("message", (e) => {
-  console.log(`${myHostname}: message: ${JSON.parse(e)}`);
-});
-jepsenWebsocket.addEventListener("close", () => {
-  console.log(`${myHostname}: close: disconnected from ${jepsenControlNode}`);
-});
-jepsenWebsocket.addEventListener("error", (e) => {
-  console.error(`${myHostname}: error: ${e}`);
-  throw new Error(`${e}`);
-});
+let jepsenWebsocket;
+try {
+  jepsenWebsocket = new WebSocket("ws://" + jepsenControlNode + ":8090");
+  jepsenWebsocket.addEventListener("open", () => {
+    console.log(`${myHostname}: open: connected to ${jepsenControlNode}`);
+  });
+  jepsenWebsocket.addEventListener("message", (e) => {
+    console.log(`${myHostname}: message: ${JSON.parse(e)}`);
+  });
+  jepsenWebsocket.addEventListener("close", () => {
+    console.log(`${myHostname}: close: disconnected from ${jepsenControlNode}`);
+  });
+  jepsenWebsocket.addEventListener("error", (e) => {
+    console.error(`${myHostname}: error: ${e}`);
+    throw new Error(`${e}`);
+  });
 
-// "register" with the Jepsen control node
-jepsenWebsocket.send(JSON.stringify({ "type": "invoke", "f": "register", "value": myHostname }));
+  // "register" with the Jepsen control node
+  jepsenWebsocket.send(JSON.stringify({ "type": "invoke", "f": "register", "value": myHostname }));
+} catch (e) {
+  console.error(`${myHostname}: error creating WebSocket: ${e}`);
+  throw new Error(`${e}`);
+}
 
 //
 // PowerSync
