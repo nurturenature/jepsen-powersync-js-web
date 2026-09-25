@@ -36,6 +36,9 @@
 (def browser-log-file-short "browser.log")
 (def browser-log-file       (str install-dir "/" browser-log-file-short))
 
+(def console-log-file-short "chrome_debug.log")
+(def console-log-file       (str install-dir "/" console-log-file-short))
+
 (defn install-packages
   "Install needed Debian packages."
   []
@@ -110,7 +113,8 @@
   (log-files
     [_db _test _node]
     {browser-log-file browser-log-file-short
-     webapp-log-file  webapp-log-file-short})
+     webapp-log-file  webapp-log-file-short
+     console-log-file console-log-file-short})
 
   db/Kill
   (start!
@@ -127,12 +131,16 @@
       (cu/start-daemon!
        {:chdir   install-dir
         :logfile browser-log-file
-        :pidfile browser-pid-file}
+        :pidfile browser-pid-file
+        :env     {:CHROME_LOG_FILE console-log-file}}
        browser-bin
        :--allow-insecure-localhost ; TODO: add cert to host's trusted certs
        :--no-sandbox               ; TODO: create a non-root user to run browser? --headless and user root require --no-sandbox
        :--headless
-       :--enable-logging=stderr
+       ; :--enable-logging=stderr TODO: how to get console logs from Chromium
+       :--enable-logging
+       :--v=1
+       (str "--user-data-dir=" install-dir)
      ; :--log-level=2 TODO what is appropriate log level? getting console logs?
        webapp-url)))
 

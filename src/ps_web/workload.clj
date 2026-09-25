@@ -23,9 +23,8 @@
      no-op
      {:db (browser-app/webapp-in-browser)
       :checker (checker/compose
-                {:webapp-log (checker/log-file-pattern #"(?i)error" browser-app/webapp-log-file-short)
-                 ; TODO browser log?
-                 })})))
+                {:webapp-log  (checker/log-file-pattern #"(?i)error" browser-app/webapp-log-file-short)
+                 :console-log (checker/log-file-pattern #"(?i)error" browser-app/console-log-file-short)})})))
 
 (def all-workloads
   "A set of all workloads"
