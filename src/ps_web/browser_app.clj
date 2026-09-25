@@ -24,11 +24,6 @@
   "Web app directory."
   (str repository-dir "/example-webpack"))
 
-(def webapp-url
-  "URL of webapp."
-  "https://localhost:443/index.html")
-
-
 (def webapp-process-name   "npm")
 (def webapp-bin            "/usr/bin/npm")
 (def webapp-pid-file       (str install-dir "/webapp.pid"))
@@ -128,7 +123,7 @@
      webapp-bin :run :serve)
 
     ; browser, i.e. chromium
-    (let [webapp-url (str webapp-url "?" "myHostname" "=" node "&" "jepsenControlNode" "=" jepsen-control-node)]
+    (let [webapp-url (str "https://" node ":443/index.html?myHostname=" node "&jepsenControlNode=" jepsen-control-node)]
       (cu/start-daemon!
        {:chdir   install-dir
         :logfile browser-log-file

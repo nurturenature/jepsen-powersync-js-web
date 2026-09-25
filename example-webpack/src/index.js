@@ -8,6 +8,7 @@ import { Schema, Table, PowerSyncDatabase, column, createConsoleLogger, LogLevel
 const urlSearchParams = new URLSearchParams(document.location.search);
 const myHostname = urlSearchParams.get("myHostname");
 const jepsenControlNode = urlSearchParams.get("jepsenControlNode");
+console.log(`creating WebSocket using urlSearchParams: myHostname: ${myHostname}, jepsenControlNode: ${jepsenControlNode}`);
 
 // websocket and handlers
 let jepsenWebsocket;
