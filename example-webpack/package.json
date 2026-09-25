@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "scripts": {
     "build": "webpack",
-    "serve": "serve ./dist",
+    "serve": "serve -p 443 --no-port-switching --ssl-cert ./https-server.cert --ssl-key ./https=server.key ./dist",
     "start": "npm run build && npm run serve",
     "test:build": "npm run build"
   },

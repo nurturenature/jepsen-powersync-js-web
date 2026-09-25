@@ -20,21 +20,26 @@
   "Repository directory."
   (str install-dir "/" repository-name))
 
-(def browser-app-dir
+(def webapp-dir
   "Web app directory."
-  (str repository-dir "/ps-web-app"))
+  (str repository-dir "/example-webpack"))
 
-(def app-url
-  "URL of browser app."
-  (str "file:" browser-app-dir "/index.html"))
+(def webapp-url
+  "URL of webapp."
+  "https://localhost:443/index.html")
 
-(def pid-file (str install-dir "/ps-web-app.pid"))
 
-(def log-file-short "ps-web-app.log")
-(def log-file       (str install-dir "/" log-file-short))
+(def webapp-process-name   "npm")
+(def webapp-bin            "/usr/bin/npm")
+(def webapp-pid-file       (str install-dir "/webapp.pid"))
+(def webapp-log-file-short "webapp.log")
+(def webapp-log-file       (str install-dir "/" webapp-log-file-short))
 
-(def app-ps-name "chromium")
-(def app-bin-name "/usr/bin/chromium")
+(def browser-process-name   "chromium")
+(def browser-bin            "/usr/bin/chromium")
+(def browser-pid-file       (str install-dir "/browser.pid"))
+(def browser-log-file-short "browser.log")
+(def browser-log-file       (str install-dir "/" browser-log-file-short))
 
 (defn install-packages
   "Install needed Debian packages."
@@ -56,9 +61,18 @@
             (c/exec :git :pull)))
     (do
       (info "repository" repository-name "does not exist, cloning")
-      (c/exec :git :clone :-b :main :--depth :1 :--single-branch "https://github.com/nurturenature/jepsen-powersync-web.git"))))
+      (c/exec :git :clone :-b :main :--depth :1 :--single-branch "https://github.com/nurturenature/jepsen-powersync-js-web.git"))))
 
-(defrecord BrowserApp []
+; grepkill! is interacting poorly with killing the webapp
+; FORNOW: workaround by explicitly calling killall
+(defn killall
+  "Kills the given named (as regex) process group.
+   Assumes on node."
+  [process-name]
+  (u/meh ; will Exception if no processes
+   (c/exec :killall :--process-group :--regexp :-- process-name)))
+
+(defrecord WebAppInBrowser []
   db/DB
   (setup!
     [this test node]
@@ -66,9 +80,15 @@
 
     (install-packages)
 
+    ; insure repository is installed
     (c/exec :mkdir :-p install-dir)
     (c/cd install-dir
           (install-repository))
+
+    ; build webapp with webpack
+    (c/cd webapp-dir
+          (c/exec :npm :install)
+          (c/exec :npm :run :build))
 
     (db/start! this test node))
 
@@ -79,7 +99,7 @@
     (db/kill! this test node)
 
     ; FORNOW: intentionally leave repository, etc installed
-    (c/exec :rm :-rf pid-file log-file))
+    (c/exec :rm :-rf webapp-log-file  browser-log-file))
 
   ;; ; PowerSync doesn't have `primaries`.
   ;; db/Primary
@@ -94,29 +114,35 @@
   db/LogFiles
   (log-files
     [_db _test _node]
-    {log-file log-file-short})
+    {browser-log-file browser-log-file-short
+     webapp-log-file  webapp-log-file-short})
 
   db/Kill
   (start!
     [_this _test _node]
+    ; webapp, i.e. npm
     (cu/start-daemon!
-     {:chdir   browser-app-dir
-      :logfile log-file
-      :pidfile pid-file}
-     app-bin-name
+     {:chdir   webapp-dir
+      :logfile webapp-log-file
+      :pidfile webapp-pid-file}
+     webapp-bin :run :serve)
+
+    ; browser, i.e. chromium
+    (cu/start-daemon!
+     {:chdir   install-dir
+      :logfile browser-log-file
+      :pidfile browser-pid-file}
+     browser-bin
+     :--no-sandbox  ; TODO: create a non-root user to run browser? --headless and user root require --no-sandbox
      :--headless
-     app-url))
+     :--enable-logging=stderr
+     ; :--log-level=2 TODO what is appropriate log level? getting console logs?
+     webapp-url))
 
   (kill!
     [_this _test _node]
-    ; TODO: understand why sporadic Exception with exit code of 137 when using Docker,
-    ;       for now, retrying is effective and safe 
-    (u/timeout 10000
-               :timed-out
-               (do
-                 (c/su
-                  (u/retry 1 (cu/grepkill! app-ps-name)))
-                 :killed)))
+    (killall browser-process-name)
+    (killall webapp-process-name))
 
   db/Pause
   (pause!
@@ -127,7 +153,7 @@
                :timed-out
                (do
                  (c/su
-                  (u/retry 1 (cu/grepkill! :stop app-ps-name)))
+                  (u/retry 1 (cu/grepkill! :stop browser-process-name)))
                  :paused)))
 
   (resume!
@@ -138,11 +164,11 @@
                :timed-out
                (do
                  (c/su
-                  (u/retry 1 (cu/grepkill! :cont app-ps-name)))
+                  (u/retry 1 (cu/grepkill! :cont browser-process-name)))
                  :resumed))))
 
-(defn browser-app
-  "Installs a browser app based on PowerSync's JS Web SDK."
+(defn webapp-in-browser
+  "A webapp running in a browser based on PowerSync's JS Web SDK."
   []
-  (BrowserApp.))
+  (WebAppInBrowser.))
 
