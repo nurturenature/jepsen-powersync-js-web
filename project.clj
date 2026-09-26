@@ -6,7 +6,9 @@
   :dependencies [[org.clojure/clojure "1.12.6"]
                  [jepsen "0.3.14"]
                  [cheshire "6.2.0"]
-                 [http-kit "2.8.1"]]
+                 [org.ring-clojure/ring-websocket-protocols "1.15.5"]
+                 [ring/ring-jetty-adapter "1.15.5"]
+                 [ring/ring-core "1.15.5"]]
   :jvm-opts ["-Xmx8g"
              "-Djava.awt.headless=true"
              "-server"]
