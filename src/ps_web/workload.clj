@@ -4,7 +4,9 @@
              [checker :as checker]
              [client :as client]
              [db :as db]]
-            [ps-web.browser-app :as browser-app]))
+            [ps-web
+             [browser-app :as browser-app]
+             [client :as ws-client]]))
 
 (defn no-op
   "A no-op PowerSync webapp workload."
@@ -22,6 +24,7 @@
     (merge
      no-op
      {:db (browser-app/webapp-in-browser)
+      :client  (ws-client/websocket-client)
       :checker (checker/compose
                 {:webapp-log  (checker/log-file-pattern #"(?i)error" browser-app/webapp-log-file-short)
                  :console-log (checker/log-file-pattern #"(?i)error" browser-app/console-log-file-short)})})))
